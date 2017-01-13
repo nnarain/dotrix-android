@@ -21,7 +21,7 @@ include_directories(
 )
 
 add_library(gameboycore-jni SHARED
-    src/main/cpp/native-lib.cpp
+    src/main/cpp/gameboycore_jni.cpp
     ${GAMEBOYCORE_SOURCES}
 )
 
