@@ -17,6 +17,11 @@ public class Color
         this.b = b;
     }
 
+    public int toInt()
+    {
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
+    }
+
     public Color()
     {
         this(0,0,0);
