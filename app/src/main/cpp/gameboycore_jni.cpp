@@ -57,7 +57,7 @@ namespace
                 }
 
                 // call listener callback and passing in the array of color values
-                env->CallVoidMethod(scanline_listener_.object, scanline_listener_.method, color_array);
+                env->CallVoidMethod(scanline_listener_.object, scanline_listener_.method, color_array, line);
             }
         }
 
@@ -110,7 +110,7 @@ extern "C"
     void Java_io_github_nnarain_dotrix_gameboycore_GameboyCore_registerScanlineCallback(JNIEnv* env, jclass c, jlong handle, jobject object)
     {
         auto object_class = env->GetObjectClass(object);
-        auto method = env->GetMethodID(object_class, "onScanline", "([io/github/nnarain/dotrix/gameboycore/Color)V");
+        auto method = env->GetMethodID(object_class, "onScanline", "([io/github/nnarain/dotrix/gameboycore/Color, I)V");
 
         if(method == 0)
         {

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Dotrix</string>
+    <string name="open_file">Open File</string>
 </resources>
