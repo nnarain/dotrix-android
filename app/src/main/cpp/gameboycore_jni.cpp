@@ -1,21 +1,31 @@
 #include <jni.h>
 #include <gameboycore/gameboycore.h>
-#include <functional>
+#include <iostream>
 
 using namespace gb;
 
 namespace
 {
+    /**
+     * @brief Wrapper for listener object
+     * */
     struct JniListener
     {
-        JniListener() : env(nullptr)
+        JniListener() :
+                object(0),
+                method(0)
         {
         }
 
-        JNIEnv* env;
         jobject object;
         jmethodID method;
     };
+
+    static void throwException(JNIEnv* env, const char* msg, const char* exception_name = "java/lang/Exception")
+    {
+        auto exception_class = env->FindClass(exception_name);
+        env->ThrowNew(exception_class, msg);
+    }
 
     /**
      * @brief JNI GameboyCore Wrapper
@@ -23,6 +33,14 @@ namespace
     class GameboyCoreJni : public GameboyCore
     {
     public:
+        GameboyCoreJni() :
+                env_(nullptr)
+        {
+        }
+
+        ~GameboyCoreJni()
+        {
+        }
 
         void registerScanlineCallback(const JniListener& listener)
         {
@@ -31,37 +49,47 @@ namespace
             this->getGPU()->setRenderCallback(std::bind(&GameboyCoreJni::scanlineCallback, this, std::placeholders::_1, std::placeholders::_2));
         }
 
+        void setJniEnv(JNIEnv* env)
+        {
+            if(env == nullptr)
+            {
+                throw std::runtime_error("Invalid JNI Environment state");
+            }
+
+            this->env_ = env;
+        }
+
     private:
         void scanlineCallback(const GPU::Scanline& scanline, int line)
         {
-            if (scanline_listener_.env != nullptr)
+            if(env_ != nullptr && scanline_listener_.object && scanline_listener_.method)
             {
-                // get the environment
-                auto env = scanline_listener_.env;
-                // get the color class and field ids
-                auto color_class = env->FindClass("Lio/github/nnarain/dotrix/gameboycore/Color");
-                auto rid = env->GetFieldID(color_class, "r", "I");
-                auto gid = env->GetFieldID(color_class, "g", "I");
-                auto bid = env->GetFieldID(color_class, "b", "I");
+                auto pixel_array = env_->NewIntArray(scanline.size());
 
-                // create an array of colors
-                auto color_array = env->NewObjectArray(160, color_class, nullptr);
-
-                // populate color array with pixel data
-                for(int i = 0; i < 160; ++i)
+                if(pixel_array != 0)
                 {
-                    auto color = env->GetObjectArrayElement(color_array, i);
-                    env->SetIntField(color, rid, scanline[i].r);
-                    env->SetIntField(color, gid, scanline[i].g);
-                    env->SetIntField(color, bid, scanline[i].b);
-                }
+                    auto pixel_ptr = env_->GetIntArrayElements(pixel_array, 0);
 
-                // call listener callback and passing in the array of color values
-                env->CallVoidMethod(scanline_listener_.object, scanline_listener_.method, color_array, line);
+                    for(int i = 0; i < scanline.size(); ++i)
+                    {
+                        auto color = 0xFF000000 | (scanline[i].r << 16) | (scanline[i].g << 8) | scanline[i].b;
+                        pixel_ptr[i] = color;
+                    }
+
+                    std::cout << std::hex << scanline_listener_.object << std::endl;
+
+                    env_->ReleaseIntArrayElements(pixel_array, pixel_ptr, 0);
+                    env_->CallVoidMethod(scanline_listener_.object, scanline_listener_.method, pixel_array, line);
+                }
+                else
+                {
+                    throwException(env_, "Could not create pixel array");
+                }
             }
         }
 
     private:
+        JNIEnv* env_;
         JniListener scanline_listener_;
     };
 }
@@ -110,20 +138,26 @@ extern "C"
     void Java_io_github_nnarain_dotrix_gameboycore_GameboyCore_registerScanlineCallback(JNIEnv* env, jclass c, jlong handle, jobject object)
     {
         auto object_class = env->GetObjectClass(object);
-        auto method = env->GetMethodID(object_class, "onScanline", "([io/github/nnarain/dotrix/gameboycore/Color, I)V");
+        auto method = env->GetMethodID(object_class, "onScanline", "([II)V");
 
-        if(method == 0)
+        if(method != 0)
         {
-            auto exception_class = env->FindClass("java/lang/IllegalArgumentException");
-            env->ThrowNew(exception_class, "No method 'onScanline' found in object");
+            JniListener listener;
+            listener.object = env->NewGlobalRef(object);
+            listener.method = method;
+
+            auto core = (GameboyCoreJni*) handle;
+            core->registerScanlineCallback(listener);
         }
+        else
+        {
+            throwException(env, "No method 'onScanline' found in object");
+        }
+    }
 
-        JniListener listener;
-        listener.env = env;
-        listener.object = object;
-        listener.method = method;
-
-        auto const core = (GameboyCoreJni*) handle;
-        core->registerScanlineCallback(listener);
+    void Java_io_github_nnarain_dotrix_gameboycore_GameboyCore_setJniEnv(JNIEnv* env, jclass c, jlong handle)
+    {
+        auto core = (GameboyCoreJni*)handle;
+        core->setJniEnv(env);
     }
 }

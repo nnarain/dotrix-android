@@ -10,12 +10,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import io.github.nnarain.dotrix.gameboycore.GameboyCore;
+import io.github.nnarain.dotrix.gameboycore.GameboyCoreWorker;
 import io.github.nnarain.dotrix.gameboycore.ScanlineListener;
 import io.github.nnarain.dotrix.screen.ScreenView;
 
@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private SurfaceView screen;
-    GameboyCore core;
+    private GameboyCore core;
+    private GameboyCoreWorker coreUpdater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         core = new GameboyCore();
+        coreUpdater = new GameboyCoreWorker(core);
 
         screen = (ScreenView)findViewById(R.id.screenview);
     }
@@ -60,13 +62,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        coreUpdater.stopRunning();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        core.dispose();
+        core.release();
     }
 
     @Override
@@ -86,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
 
                 core.loadRom(buffer);
                 core.registerScanlineCallback((ScanlineListener)screen);
+
+                coreUpdater.start();
             }
             catch(FileNotFoundException e)
             {

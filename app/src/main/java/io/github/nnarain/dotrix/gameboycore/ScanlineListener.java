@@ -6,5 +6,5 @@ package io.github.nnarain.dotrix.gameboycore;
 
 public interface ScanlineListener
 {
-    void onScanline(Color[] color, int line);
+    void onScanline(int[] colors, int line);
 }

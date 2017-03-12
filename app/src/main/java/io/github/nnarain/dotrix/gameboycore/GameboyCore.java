@@ -10,12 +10,12 @@ public class GameboyCore
 
     public GameboyCore()
     {
-        this.handle = GameboyCore.createInstance();
+        this.handle = createInstance();
     }
 
-    public void dispose()
+    public void release()
     {
-        GameboyCore.release(this.handle);
+        release(this.handle);
     }
 
     public void update(int steps)
@@ -25,24 +25,30 @@ public class GameboyCore
             steps = 0;
         }
 
-        GameboyCore.update(this.handle, steps);
+        update(this.handle, steps);
     }
 
     public void loadRom(byte[] buffer)
     {
-        GameboyCore.loadRomFromBuffer(this.handle, buffer);
+        loadRomFromBuffer(this.handle, buffer);
     }
 
     public void registerScanlineCallback(ScanlineListener listener)
     {
-        GameboyCore.registerScanlineCallback(this.handle, listener);
+        registerScanlineCallback(this.handle, listener);
+    }
+
+    public void setJniEnv()
+    {
+        setJniEnv(this.handle);
     }
 
     /* Native Functions */
 
-    private static native long createInstance();
-    private static native void release(long handle);
-    private static native void update(long handle, int steps);
-    private static native void loadRomFromBuffer(long handle, byte[] buffer);
-    private static native void registerScanlineCallback(long handle, ScanlineListener listener);
+    private native long createInstance();
+    private native void release(long handle);
+    private native void update(long handle, int steps);
+    private native void loadRomFromBuffer(long handle, byte[] buffer);
+    private native void registerScanlineCallback(long handle, ScanlineListener listener);
+    private native void setJniEnv(long handle);
 }
