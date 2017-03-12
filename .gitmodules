@@ -1,0 +1,3 @@
+[submodule "app/src/main/cpp/gameboycore"]
+	path = app/src/main/cpp/gameboycore
+	url = https://github.com/nnarain/gameboycore.git
