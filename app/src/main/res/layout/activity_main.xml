@@ -10,9 +10,35 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="io.github.nnarain.dotrix.MainActivity">
 
-    <io.github.nnarain.dotrix.screen.ScreenView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/screenview"/>
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <!-- Gameboy LCD Screen -->
+        <io.github.nnarain.dotrix.screen.ScreenView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/screenview"/>
+
+        <!-- D Pad -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start">
+            <include layout="@layout/layout_dpad" />
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end">
+            <include layout="@layout/layout_ab_button"/>
+        </LinearLayout>
+
+    </FrameLayout>
 
 </RelativeLayout>

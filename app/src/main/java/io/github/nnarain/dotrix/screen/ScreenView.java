@@ -3,6 +3,7 @@ package io.github.nnarain.dotrix.screen;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -47,8 +48,6 @@ public class ScreenView extends SurfaceView implements ScanlineListener, Surface
     @Override
     public void run()
     {
-        Log.d(TAG, "Starting drawing thread");
-
         while (running)
         {
             Canvas canvas = holder.lockCanvas();
@@ -57,6 +56,7 @@ public class ScreenView extends SurfaceView implements ScanlineListener, Surface
             {
                 synchronized (holder)
                 {
+                    canvas.drawColor(Color.WHITE);
                     canvas.drawBitmap(lcd, lcdSrc, lcdDst, null);
                 }
 
@@ -84,11 +84,17 @@ public class ScreenView extends SurfaceView implements ScanlineListener, Surface
     public void surfaceCreated(SurfaceHolder holder)
     {
         // init the bitmap with source and destination rectangles
-        this.lcd = Bitmap.createBitmap(160, 144, Bitmap.Config.ARGB_8888);
-        this.lcdSrc = new Rect(0, 0, 160, 144);
-        this.lcdDst = new Rect(0, 0, this.getWidth(), this.getHeight());
+        lcd = Bitmap.createBitmap(160, 144, Bitmap.Config.ARGB_8888);
+        lcdSrc = new Rect(0, 0, 160, 144);
 
-        Log.d(TAG, "W: " + this.getWidth() + ", H: " + this.getHeight());
+        int w = getWidth();
+        int h = getHeight();
+
+        float aspect = (float)h/(float)w;
+
+        int destWidth = (int)(((float)w * 3.0f/4.0f));
+
+        this.lcdDst = new Rect(0, 0, w, h);
 
         drawThread = new Thread(this);
         running = true;
