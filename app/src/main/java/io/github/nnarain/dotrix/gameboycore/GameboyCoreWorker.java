@@ -38,7 +38,7 @@ public class GameboyCoreWorker extends Thread
 
     public void stopRunning()
     {
-        running = true;
+        running = false;
 
         try
         {
