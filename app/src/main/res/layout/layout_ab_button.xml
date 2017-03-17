@@ -6,12 +6,14 @@
             android:columnCount="3">
 
     <Button
+        android:id="@+id/bnA"
         android:text="A"
         android:layout_column="1"
         android:layout_row="1"
         android:layout_width="47dp"
         android:layout_height="47dp"/>
     <Button
+        android:id="@+id/bnB"
         android:text="B"
         android:layout_column="0"
         android:layout_row="2"

@@ -5,10 +5,12 @@
               android:layout_height="match_parent">
 
     <Button
+        android:id="@+id/bnSelect"
         android:text="SEL"
         android:layout_width="35dp"
         android:layout_height="30dp"/>
     <Button
+        android:id="@+id/bnStart"
         android:text="START"
         android:layout_width="35dp"
         android:layout_height="30dp"/>

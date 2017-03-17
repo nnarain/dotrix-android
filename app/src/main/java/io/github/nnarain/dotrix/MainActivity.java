@@ -17,7 +17,8 @@ import java.io.InputStream;
 import io.github.nnarain.dotrix.gameboycore.GameboyCore;
 import io.github.nnarain.dotrix.gameboycore.GameboyCoreWorker;
 import io.github.nnarain.dotrix.gameboycore.ScanlineListener;
-import io.github.nnarain.dotrix.screen.ScreenView;
+import io.github.nnarain.dotrix.ui.Input;
+import io.github.nnarain.dotrix.ui.ScreenView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private SurfaceView screen;
+    private Input input;
     private GameboyCore core;
     private GameboyCoreWorker coreUpdater;
 
@@ -43,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
         coreUpdater = new GameboyCoreWorker(core);
 
         screen = (ScreenView)findViewById(R.id.screenview);
+
+        // set touch listener
+        input = new Input(this, core);
     }
 
     @Override

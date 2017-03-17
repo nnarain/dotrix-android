@@ -1,4 +1,4 @@
-package io.github.nnarain.dotrix.screen;
+package io.github.nnarain.dotrix.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -132,6 +132,25 @@ extern "C"
         core->update(steps);
     }
 
+    void Java_io_github_nnarain_dotrix_gameboycore_GameboyCore_input(JNIEnv* env, jclass c, jlong handle, jint action, jint code)
+    {
+        auto const core = (GameboyCoreJni*)handle;
+        auto& joy = core->getJoypad();
+
+        // check that the joypad has been initialized
+        if(joy)
+        {
+            if(action == 0)
+            {
+                core->getJoypad()->press(static_cast<Joy::Key>(code));
+            }
+            else
+            {
+                core->getJoypad()->release(static_cast<Joy::Key>(code));
+            }
+        }
+    }
+
     /**
      * Register scanline callback
      * */
